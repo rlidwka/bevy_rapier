@@ -7,10 +7,7 @@ use std::collections::HashMap;
 use std::sync::RwLock;
 
 use rapier::prelude::{
-    CCDSolver, ColliderHandle, ColliderSet, EventHandler, FeatureId, ImpulseJointHandle,
-    ImpulseJointSet, IntegrationParameters, IslandManager, MultibodyJointHandle, MultibodyJointSet,
-    NarrowPhase, PhysicsHooks, PhysicsPipeline, QueryFilter as RapierQueryFilter, QueryPipeline,
-    Ray, Real, RigidBodyHandle, RigidBodySet,
+    BroadPhase, CCDSolver, ColliderHandle, ColliderSet, EventHandler, FeatureId, ImpulseJointHandle, ImpulseJointSet, IntegrationParameters, IslandManager, MultibodyJointHandle, MultibodyJointSet, NarrowPhase, PhysicsHooks, PhysicsPipeline, QueryFilter as RapierQueryFilter, QueryPipeline, Ray, Real, RigidBodyHandle, RigidBodySet
 };
 
 use crate::geometry::{Collider, PointProjection, RayIntersection, ShapeCastHit};
@@ -748,7 +745,9 @@ pub struct RapierContextSimulation {
     /// (not moving much) to reduce computations.
     pub islands: IslandManager,
     /// The broad-phase, which detects potential contact pairs.
-    pub broad_phase: DefaultBroadPhase,
+    #[cfg_attr(feature = "serde-serialize", serde(skip))]
+    #[cfg_attr(feature = "serde-serialize", serde(default = "default_broad_phase"))]
+    pub broad_phase: Box<dyn BroadPhase>,
     /// The narrow-phase, which computes contact points, tests intersections,
     /// and maintain the contact and intersection graphs.
     pub narrow_phase: NarrowPhase,
@@ -779,7 +778,7 @@ impl Default for RapierContextSimulation {
     fn default() -> Self {
         Self {
             islands: IslandManager::new(),
-            broad_phase: DefaultBroadPhase::new(),
+            broad_phase: Box::new(DefaultBroadPhase::new()),
             narrow_phase: NarrowPhase::new(),
             ccd_solver: CCDSolver::new(),
             pipeline: PhysicsPipeline::new(),
@@ -793,6 +792,11 @@ impl Default for RapierContextSimulation {
     }
 }
 
+#[cfg(feature = "serde-serialize")]
+fn default_broad_phase() -> Box<dyn BroadPhase> {
+    Box::new(DefaultBroadPhase::new())
+}
+
 impl RapierContextSimulation {
     /// Advance the simulation, based on the given timestep mode.
     #[allow(clippy::too_many_arguments)]
@@ -801,6 +805,7 @@ impl RapierContextSimulation {
         colliders: &mut RapierContextColliders,
         joints: &mut RapierContextJoints,
         rigidbody_set: &mut RapierRigidBodySet,
+        query_pipeline: &mut RapierQueryPipeline,
         gravity: Vect,
         timestep_mode: TimestepMode,
         events: Option<(
@@ -866,14 +871,14 @@ impl RapierContextSimulation {
                             &gravity.into(),
                             &substep_integration_parameters,
                             &mut self.islands,
-                            &mut self.broad_phase,
+                            &mut *self.broad_phase,
                             &mut self.narrow_phase,
                             &mut rigidbody_set.bodies,
                             &mut colliders.colliders,
                             &mut joints.impulse_joints,
                             &mut joints.multibody_joints,
                             &mut self.ccd_solver,
-                            None,
+                            Some(&mut query_pipeline.query_pipeline),
                             hooks,
                             event_handler,
                         );
@@ -898,14 +903,14 @@ impl RapierContextSimulation {
                         &gravity.into(),
                         &substep_integration_parameters,
                         &mut self.islands,
-                        &mut self.broad_phase,
+                        &mut *self.broad_phase,
                         &mut self.narrow_phase,
                         &mut rigidbody_set.bodies,
                         &mut colliders.colliders,
                         &mut joints.impulse_joints,
                         &mut joints.multibody_joints,
                         &mut self.ccd_solver,
-                        None,
+                        Some(&mut query_pipeline.query_pipeline),
                         hooks,
                         event_handler,
                     );
@@ -923,14 +928,14 @@ impl RapierContextSimulation {
                         &gravity.into(),
                         &substep_integration_parameters,
                         &mut self.islands,
-                        &mut self.broad_phase,
+                        &mut *self.broad_phase,
                         &mut self.narrow_phase,
                         &mut rigidbody_set.bodies,
                         &mut colliders.colliders,
                         &mut joints.impulse_joints,
                         &mut joints.multibody_joints,
                         &mut self.ccd_solver,
-                        None,
+                        Some(&mut query_pipeline.query_pipeline),
                         hooks,
                         event_handler,
                     );

@@ -219,6 +219,7 @@ mod simulation {
                 &mut self.colliders,
                 &mut self.joints,
                 &mut self.rigidbody_set,
+                &mut self.query_pipeline,
                 gravity,
                 timestep_mode,
                 events,
