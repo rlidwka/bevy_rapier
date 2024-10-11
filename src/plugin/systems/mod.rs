@@ -71,6 +71,7 @@ pub fn step_simulation<Hooks>(
                 context_colliders,
                 &mut joints,
                 &mut rigidbody_set,
+                &mut query_pipeline,
                 config.gravity,
                 *timestep_mode,
                 Some((&collision_events, &contact_force_events)),
