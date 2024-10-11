@@ -267,7 +267,7 @@ impl RapierContext {
                             &mut self.impulse_joints,
                             &mut self.multibody_joints,
                             &mut self.ccd_solver,
-                            None,
+                            Some(&mut self.query_pipeline),
                             hooks,
                             events,
                         );
@@ -298,7 +298,7 @@ impl RapierContext {
                         &mut self.impulse_joints,
                         &mut self.multibody_joints,
                         &mut self.ccd_solver,
-                        None,
+                        Some(&mut self.query_pipeline),
                         hooks,
                         events,
                     );
@@ -322,7 +322,7 @@ impl RapierContext {
                         &mut self.impulse_joints,
                         &mut self.multibody_joints,
                         &mut self.ccd_solver,
-                        None,
+                        Some(&mut self.query_pipeline),
                         hooks,
                         events,
                     );
