@@ -156,15 +156,17 @@ impl<'world, 'state, 'world2, 'state2, 'a, 'c, 'd, 'v, 'p>
                 let Some(collider) = self.context_colliders.colliders.get(h) else {
                     return false;
                 };
-                let entity = Entity::from_bits(collider.user_data as u64);
-
-                let collider_debug =
-                    if let Ok(collider_override) = self.override_visibility.get(entity) {
-                        *collider_override
-                    } else {
-                        self.default_collider_debug
-                    };
-                collider_debug == ColliderDebug::AlwaysRender
+                if let Ok(entity) = Entity::try_from_bits(collider.user_data as u64) {
+                    let collider_debug =
+                        if let Ok(collider_override) = self.override_visibility.get(entity) {
+                            *collider_override
+                        } else {
+                            self.default_collider_debug
+                        };
+                    collider_debug == ColliderDebug::AlwaysRender
+                } else {
+                    false
+                }
             }
             _ => true,
         }
