@@ -139,7 +139,7 @@ impl<'world, 'state, 'world2, 'state2, 'a, 'c, 'd, 'v, 'p>
             DebugRenderObject::Collider(h, ..) => {
                 self.context_colliders.colliders.get(h).and_then(|co| {
                     self.custom_colors
-                        .get(Entity::from_bits(co.user_data as u64))
+                        .get(Entity::try_from_bits(co.user_data as u64).ok()?)
                         .map(|co| co.0)
                         .ok()
                 })
@@ -156,7 +156,9 @@ impl<'world, 'state, 'world2, 'state2, 'a, 'c, 'd, 'v, 'p>
                 let Some(collider) = self.context_colliders.colliders.get(h) else {
                     return false;
                 };
-                let entity = Entity::from_bits(collider.user_data as u64);
+                let Ok(entity) = Entity::try_from_bits(collider.user_data as u64) else {
+                    return false;
+                };
 
                 let collider_debug =
                     if let Ok(collider_override) = self.override_visibility.get(entity) {

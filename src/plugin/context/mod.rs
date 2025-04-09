@@ -114,7 +114,7 @@ impl RapierContextColliders {
     ) -> Option<Entity> {
         colliders
             .get(handle)
-            .map(|c| Entity::from_bits(c.user_data as u64))
+            .and_then(|c| Entity::try_from_bits(c.user_data as u64).ok())
     }
 
     /// The map from entities to collider handles.
@@ -693,7 +693,7 @@ impl RapierRigidBodySet {
     pub fn rigid_body_entity(&self, handle: RigidBodyHandle) -> Option<Entity> {
         self.bodies
             .get(handle)
-            .map(|c| Entity::from_bits(c.user_data as u64))
+            .and_then(|c| Entity::try_from_bits(c.user_data as u64).ok())
     }
 
     /// This method makes sure that the rigid-body positions have been propagated to

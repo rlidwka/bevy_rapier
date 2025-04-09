@@ -18,8 +18,8 @@ struct SameUserDataFilter<'w, 's> {
 
 impl BevyPhysicsHooks for SameUserDataFilter<'_, '_> {
     fn filter_contact_pair(&self, context: PairFilterContextView) -> Option<SolverFlags> {
-        if self.tags.get(context.collider1()).ok().copied()
-            == self.tags.get(context.collider2()).ok().copied()
+        if self.tags.get(context.collider1()?).ok().copied()
+            == self.tags.get(context.collider2()?).ok().copied()
         {
             Some(SolverFlags::COMPUTE_IMPULSES)
         } else {

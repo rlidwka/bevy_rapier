@@ -66,7 +66,7 @@ impl EventQueue<'_> {
     fn collider2entity(&self, colliders: &ColliderSet, handle: ColliderHandle) -> Entity {
         colliders
             .get(handle)
-            .map(|co| Entity::from_bits(co.user_data as u64))
+            .and_then(|co| Entity::try_from_bits(co.user_data as u64).ok())
             .or_else(|| self.deleted_colliders.get(&handle).copied())
             .expect("Internal error: entity not found for collision event.")
     }

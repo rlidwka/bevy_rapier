@@ -12,32 +12,32 @@ pub struct PairFilterContextView<'a> {
 
 impl PairFilterContextView<'_> {
     /// The entity of the first collider involved in the potential collision.
-    pub fn collider1(&self) -> Entity {
+    pub fn collider1(&self) -> Option<Entity> {
         let co1 = &self.raw.colliders[self.raw.collider1];
-        Entity::from_bits(co1.user_data as u64)
+        Entity::try_from_bits(co1.user_data as u64).ok()
     }
 
     /// The entity of the second collider involved in the potential collision.
-    pub fn collider2(&self) -> Entity {
+    pub fn collider2(&self) -> Option<Entity> {
         let co2 = &self.raw.colliders[self.raw.collider2];
-        Entity::from_bits(co2.user_data as u64)
+        Entity::try_from_bits(co2.user_data as u64).ok()
     }
 
     /// The entity of the first rigid-body (if `self.collider1()` is attached to a rigid-body)
     /// involved in the potential collision.
     pub fn rigid_body1(&self) -> Option<Entity> {
-        self.raw.rigid_body1.map(|h| {
-            let co1 = &self.raw.bodies[h];
-            Entity::from_bits(co1.user_data as u64)
+        self.raw.rigid_body1.and_then(|h| {
+            let body1 = &self.raw.bodies[h];
+            Entity::try_from_bits(body1.user_data as u64).ok()
         })
     }
 
     /// The entity of the second rigid-body (if `self.collider1()` is attached to a rigid-body)
     /// involved in the potential collision.
     pub fn rigid_body2(&self) -> Option<Entity> {
-        self.raw.rigid_body2.map(|h| {
-            let co2 = &self.raw.bodies[h];
-            Entity::from_bits(co2.user_data as u64)
+        self.raw.rigid_body2.and_then(|h| {
+            let body2 = &self.raw.bodies[h];
+            Entity::try_from_bits(body2.user_data as u64).ok()
         })
     }
 }
@@ -50,32 +50,32 @@ pub struct ContactModificationContextView<'a, 'b> {
 
 impl ContactModificationContextView<'_, '_> {
     /// The entity of the first collider involved in the potential collision.
-    pub fn collider1(&self) -> Entity {
+    pub fn collider1(&self) -> Option<Entity> {
         let co1 = &self.raw.colliders[self.raw.collider1];
-        Entity::from_bits(co1.user_data as u64)
+        Entity::try_from_bits(co1.user_data as u64).ok()
     }
 
     /// The entity of the second collider involved in the potential collision.
-    pub fn collider2(&self) -> Entity {
+    pub fn collider2(&self) -> Option<Entity> {
         let co2 = &self.raw.colliders[self.raw.collider2];
-        Entity::from_bits(co2.user_data as u64)
+        Entity::try_from_bits(co2.user_data as u64).ok()
     }
 
     /// The entity of the first rigid-body (if `self.collider1()` is attached to a rigid-body)
     /// involved in the potential collision.
     pub fn rigid_body1(&self) -> Option<Entity> {
-        self.raw.rigid_body1.map(|h| {
-            let co1 = &self.raw.bodies[h];
-            Entity::from_bits(co1.user_data as u64)
+        self.raw.rigid_body1.and_then(|h| {
+            let body1 = &self.raw.bodies[h];
+            Entity::try_from_bits(body1.user_data as u64).ok()
         })
     }
 
     /// The entity of the second rigid-body (if `self.collider1()` is attached to a rigid-body)
     /// involved in the potential collision.
     pub fn rigid_body2(&self) -> Option<Entity> {
-        self.raw.rigid_body2.map(|h| {
-            let co2 = &self.raw.bodies[h];
-            Entity::from_bits(co2.user_data as u64)
+        self.raw.rigid_body2.and_then(|h| {
+            let body2 = &self.raw.bodies[h];
+            Entity::try_from_bits(body2.user_data as u64).ok()
         })
     }
 }
