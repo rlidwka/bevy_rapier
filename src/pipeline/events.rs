@@ -68,7 +68,7 @@ impl EventQueue<'_> {
             .get(handle)
             .and_then(|co| Entity::try_from_bits(co.user_data as u64).ok())
             .or_else(|| self.deleted_colliders.get(&handle).copied())
-            .expect("Internal error: entity not found for collision event.")
+            .unwrap_or(Entity::PLACEHOLDER)
     }
 }
 
